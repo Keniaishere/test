@@ -2,14 +2,43 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sketch1</title>
-    <link rel="stylesheet" type="text/css" href="/libraries/p5js/p5.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task-05</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .ui-button, .ui-select {
+        background-color: #1e1e1e;
+        color: #eee;
+        border: 1px solid #444;
+        border-radius: 6px;
+        padding: 8px 14px;
+        font-size: 14px;
+        font-family: 'Inter', 'Helvetica Neue', sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        transition: background-color 0.2s, color 0.2s;
+        outline: none;
+      }
+      .ui-button:hover, .ui-select:hover {
+        background-color: #333;
+        color: #fff;
+        border-color: #666;
+      }
+      .ui-button:active { background-color: #555; }
+      .ui-select { padding: 6px 10px; cursor: pointer; }
+    </style>
   </head>
   <body>
-    <script src="/libraries/p5js/p5.min.js"></script>
-    <script src="/libraries/p5js/libraries/p5.svg.js"></script>
-    <script src="/libraries/p5js/libraries/p5.sound.min.js"></script>
-    <script src="sketch.js"></script>
+    <!-- Use CDN to avoid local path 404s -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/addons/p5.sound.min.js"></script>
+    <script defer src="sketch.js"></script>
   </body>
 </html>
