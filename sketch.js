@@ -1,80 +1,147 @@
-let audioIn, fft, amp, peakDetect;
-let shapes = [];
-const numShapes = 30;
-const velocity = 2;
-let peakRed = 0;
+let fft, audioIn;
+let points = [];
+let radius = 200;
+let cols = 55;
+let rows = 55;
+let spacing = 14;
+let numPoints = cols * rows; // 3025 points
+
+let mode = "sphere";
+let toggleBtn, themeSelect, exportBtn;
+
+let currentTheme = "Fire";
+let themes = {
+  Fire: { minHue: 30, maxHue: 0 },
+  Ocean: { minHue: 250, maxHue: 160 },
+  Neon: { minHue: 250, maxHue: 340 },
+  Forest: { minHue: 40, maxHue: 320 }
+};
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(windowWidth, windowHeight, WEBGL);
   noStroke();
-  angleMode(RADIANS);
+  colorMode(HSL, 360, 100, 100);
 
-  // Request audio from loopback device
+  // UI: Toggle button
+  toggleBtn = createButton("Switch to Grid");
+  toggleBtn.position(20, 20);
+  toggleBtn.class('ui-button');
+  toggleBtn.mousePressed(() => {
+    mode = (mode === "sphere") ? "grid" : "sphere";
+    toggleBtn.html(mode === "sphere" ? "Switch to Grid" : "Switch to Sphere");
+
+    // Update target positions
+    for (let i = 0; i < points.length; i++) {
+      points[i].target = (mode === "sphere")
+        ? points[i].sphere.copy()
+        : points[i].grid.copy();
+    }
+  });
+
+  // UI: Theme select
+  themeSelect = createSelect();
+  themeSelect.position(20, 60);
+  themeSelect.class('ui-select');
+  for (let t in themes) {
+    themeSelect.option(t);
+  }
+  themeSelect.changed(() => {
+    currentTheme = themeSelect.value();
+  });
+
+  // Export button
+  exportBtn = createButton("Export Image");
+  exportBtn.position(windowWidth - 135, 20);
+  exportBtn.class('ui-button');
+  exportBtn.mousePressed(() => {
+    toggleBtn.hide();
+    themeSelect.hide();
+    exportBtn.hide();
+    setTimeout(() => {
+      saveCanvas('visualization', 'png');
+      toggleBtn.show();
+      themeSelect.show();
+      exportBtn.show();
+    }, 100);
+  });
+
   getAudioContext().suspend();
   userStartAudio();
 
   audioIn = new p5.AudioIn();
   audioIn.start();
 
-  fft = new p5.FFT();
+  fft = new p5.FFT(0.9, 128);
   fft.setInput(audioIn);
 
-  amp = new p5.Amplitude();
-  amp.setInput(audioIn);
+  // Generate points with both sphere and grid positions
+  for (let i = 0; i < numPoints; i++) {
+    // Sphere
+    let theta = random(TWO_PI);
+    let phi = random(PI);
+    let sx = radius * sin(phi) * cos(theta);
+    let sy = radius * sin(phi) * sin(theta);
+    let sz = radius * cos(phi);
+    let spherePos = createVector(sx, sy, sz);
 
-  peakDetect = new p5.PeakDetect(20, 20000, 0.2, 20);
+    // Grid
+    let x = i % cols;
+    let y = floor(i / cols);
+    let gx = (x - cols / 2) * spacing;
+    let gy = (y - rows / 2) * spacing;
+    let gz = 0;
+    let gridPos = createVector(gx, gy, gz);
 
-  for (let i = 0; i < numShapes; i++) {
-    shapes.push({
-      x: random(width),
-      y: random(height),
-      vx: random(-velocity, velocity),
-      vy: random(-velocity, velocity),
-      angle: random(TWO_PI),
-      angularVelocity: random(-0.05, 0.05)
+    points.push({
+      sphere: spherePos,
+      grid: gridPos,
+      current: spherePos.copy(),
+      target: spherePos.copy()
     });
   }
 }
 
 function draw() {
-  background(0, 50);
+  background(0);
+  orbitControl(5, 1, 0.02);
+  let spectrum = fft.analyze();
+  let theme = themes[currentTheme];
 
-  fft.analyze();
-  peakDetect.update(fft);
-
-  let level = amp.getLevel() * 1000;
-
-  if (peakDetect.isDetected) {
-    peakRed = 255;
+  if (mode === "sphere") {
+    rotateX(sin(frameCount * 0.001) * 0.5);
+    rotateY(cos(frameCount * 0.0012) * 0.5);
+    rotateZ(sin(frameCount * 0.0008) * 0.5);
   } else {
-    peakRed = max(peakRed - 10, 0);
+    rotateX(PI / 4);
+    rotateZ(frameCount * 0.001);
   }
 
-  for (let s of shapes) {
+  for (let i = 0; i < points.length; i++) {
+    let p = points[i];
+    p.current.lerp(p.target, 0.07);
+
+    let freqIndex = i % spectrum.length;
+    let boost = map(freqIndex, 0, spectrum.length, 1.0, 3.0);
+    let rawEnergy = spectrum[freqIndex];
+    let energy = rawEnergy * boost;
+    if (energy < 10 && freqIndex > 90) energy += random(5);
+
+    let offset = p.current.copy().normalize().mult(map(energy, 0, 255 * boost, 0, 50));
+    let pos = p.current.copy().add(offset);
+
+    let hue = map(freqIndex, 0, spectrum.length, theme.minHue, theme.maxHue);
+    let size = map(energy, 0, 255 * boost, 1, 4);
+
     push();
-    translate(s.x, s.y);
-    rotate(s.angle);
-    fill(peakRed, 100, 255);
-    triangle(-level / 10, level / 10, level / 10, level / 10, 0, -level / 1.5);
+    translate(pos.x, pos.y, pos.z);
+    fill(hue, 100, 50);
+    sphere(size);
     pop();
-
-    s.x += s.vx;
-    s.y += s.vy;
-    s.angle += s.angularVelocity;
-
-    if (s.x < 0 || s.x > width) s.vx *= -1;
-    if (s.y < 0 || s.y > height) s.vy *= -1;
   }
-
-  // Optional waveform
-  let waveform = fft.waveform();
-  noFill();
-  stroke(255, 0, 0);
-  beginShape();
-  for (let i = 0; i < waveform.length; i++) {
-    let x = map(i, 0, waveform.length, 0, width);
-    let y = map(waveform[i], -1, 1, 0, height);
-    vertex(x, y);
-  }
-  endShape();
 }
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  exportBtn.position(windowWidth - 135, 20);
+}
+
