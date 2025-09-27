@@ -1,44 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Task-05</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background: #000;
-        overflow: hidden;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .ui-button, .ui-select {
-        background-color: #1e1e1e;
-        color: #eee;
-        border: 1px solid #444;
-        border-radius: 6px;
-        padding: 8px 14px;
-        font-size: 14px;
-        font-family: 'Inter', 'Helvetica Neue', sans-serif;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        transition: background-color 0.2s, color 0.2s;
-        outline: none;
-      }
-      .ui-button:hover, .ui-select:hover {
-        background-color: #333;
-        color: #fff;
-        border-color: #666;
-      }
-      .ui-button:active { background-color: #555; }
-      .ui-select { padding: 6px 10px; cursor: pointer; }
-    </style>
-  </head>
-  <body>
-    <!-- Use CDN to avoid local path 404s -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/addons/p5.sound.min.js"></script>
-    <script defer src="sketch.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Task 5 – 3D Audio Sphere/Grid</title>
+  <style>
+    html, body { margin:0; height:100%; background:#000; color:#fff; font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    .ui-button, .ui-select {
+      position:absolute; z-index:10; padding:8px 12px; border-radius:10px; border:1px solid #ffffff22;
+      background:#111; color:#fff; backdrop-filter: blur(6px); box-shadow: 0 4px 18px #00000066; cursor:pointer; font-size:14px;
+    }
+    .ui-button:hover { background:#1a1a1a; }
+    .ui-select { padding:6px 10px; }
+    canvas { position: fixed !important; inset: 0; }
+  </style>
+</head>
+<body>
+  <!-- p5 from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.10.0/lib/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.10.0/lib/addons/p5.sound.min.js"></script>
+
+  <!-- your sketch -->
+  <script src="./sketch.js"></script>
+</body>
 </html>
