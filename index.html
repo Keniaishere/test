@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Task 5 – 3D Audio Sphere/Grid</title>
   <style>
-    html, body { margin:0; height:100%; background:#000; color:#fff; font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    html, body { margin:0; height:100%; background:#000; color:#fff; font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; overflow:hidden; }
+    body, canvas { touch-action: none; }           /* ensure wheel/gesture go to canvas */
     .ui-button, .ui-select {
       position:absolute; z-index:10; padding:8px 12px; border-radius:10px; border:1px solid #ffffff22;
       background:#111; color:#fff; backdrop-filter: blur(6px); box-shadow: 0 4px 18px #00000066; cursor:pointer; font-size:14px;
@@ -16,11 +17,10 @@
   </style>
 </head>
 <body>
-  <!-- p5 from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/p5@1.10.0/lib/p5.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.10.0/lib/addons/p5.sound.min.js"></script>
 
-  <!-- your sketch -->
-  <script src="./sketch.js"></script>
+  <!-- cache-bust to force browsers to load the new sketch -->
+  <script src="./sketch.js?v=2"></script>
 </body>
 </html>
