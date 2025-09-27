@@ -11,10 +11,10 @@ let toggleBtn, themeSelect, exportBtn;
 
 let currentTheme = "Fire";
 let themes = {
-  Fire: { minHue: 30, maxHue: 0 },
-  Ocean: { minHue: 250, maxHue: 160 },
-  Neon: { minHue: 250, maxHue: 340 },
-  Forest: { minHue: 40, maxHue: 320 }
+  Fire:   { minHue: 30,  maxHue: 0   },
+  Ocean:  { minHue: 250, maxHue: 160 },
+  Neon:   { minHue: 250, maxHue: 340 },
+  Forest: { minHue: 40,  maxHue: 320 }
 };
 
 function setup() {
@@ -29,12 +29,8 @@ function setup() {
   toggleBtn.mousePressed(() => {
     mode = (mode === "sphere") ? "grid" : "sphere";
     toggleBtn.html(mode === "sphere" ? "Switch to Grid" : "Switch to Sphere");
-
-    // Update target positions
     for (let i = 0; i < points.length; i++) {
-      points[i].target = (mode === "sphere")
-        ? points[i].sphere.copy()
-        : points[i].grid.copy();
+      points[i].target = (mode === "sphere") ? points[i].sphere.copy() : points[i].grid.copy();
     }
   });
 
@@ -42,35 +38,26 @@ function setup() {
   themeSelect = createSelect();
   themeSelect.position(20, 60);
   themeSelect.class('ui-select');
-  for (let t in themes) {
-    themeSelect.option(t);
-  }
-  themeSelect.changed(() => {
-    currentTheme = themeSelect.value();
-  });
+  for (let t in themes) themeSelect.option(t);
+  themeSelect.changed(() => currentTheme = themeSelect.value());
 
   // Export button
   exportBtn = createButton("Export Image");
   exportBtn.position(windowWidth - 135, 20);
   exportBtn.class('ui-button');
   exportBtn.mousePressed(() => {
-    toggleBtn.hide();
-    themeSelect.hide();
-    exportBtn.hide();
+    toggleBtn.hide(); themeSelect.hide(); exportBtn.hide();
     setTimeout(() => {
       saveCanvas('visualization', 'png');
-      toggleBtn.show();
-      themeSelect.show();
-      exportBtn.show();
+      toggleBtn.show(); themeSelect.show(); exportBtn.show();
     }, 100);
   });
 
+  // Audio
   getAudioContext().suspend();
   userStartAudio();
-
   audioIn = new p5.AudioIn();
   audioIn.start();
-
   fft = new p5.FFT(0.9, 128);
   fft.setInput(audioIn);
 
@@ -89,8 +76,7 @@ function setup() {
     let y = floor(i / cols);
     let gx = (x - cols / 2) * spacing;
     let gy = (y - rows / 2) * spacing;
-    let gz = 0;
-    let gridPos = createVector(gx, gy, gz);
+    let gridPos = createVector(gx, gy, 0);
 
     points.push({
       sphere: spherePos,
@@ -103,7 +89,10 @@ function setup() {
 
 function draw() {
   background(0);
-  orbitControl(5, 1, 0.02);
+
+  // Smooth camera controls
+  orbitControl(5, 1, 0.25);
+
   let spectrum = fft.analyze();
   let theme = themes[currentTheme];
 
@@ -134,8 +123,12 @@ function draw() {
 
     push();
     translate(pos.x, pos.y, pos.z);
-    fill(hue, 100, 50);
-    sphere(size);
+
+    
+    fill(hue, 100, 50);   // HSL fill
+    sphere(size);         // default sphere (no custom detail/material)
+    // <<<
+
     pop();
   }
 }
@@ -144,4 +137,5 @@ function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   exportBtn.position(windowWidth - 135, 20);
 }
+
 
